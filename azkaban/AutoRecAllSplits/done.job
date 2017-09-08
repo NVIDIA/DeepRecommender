@@ -1,0 +1,3 @@
+type=command
+dependencies=RecoEncoder1Y,RecoEncoderN3m,RecoEncoderN6m,RecoEncoderNF
+command=echo 'Done'

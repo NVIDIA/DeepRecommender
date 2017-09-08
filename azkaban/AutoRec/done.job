@@ -1,0 +1,3 @@
+type=command
+dependencies=ConstrainedRecoEncoder,RecoEncoder
+command=echo 'Done'

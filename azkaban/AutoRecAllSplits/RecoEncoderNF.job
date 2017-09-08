@@ -1,0 +1,20 @@
+# simple CF auto encoder job
+env.CUDA_VISIBLE_DEVICES=3
+source_dir=/home/okuchaiev/repos/cuRecs/code/RecoEncoder
+type=command
+dependencies=netflix_data_preprocess
+command=python ${source_dir}/run.py --gpu_ids 0 \
+--path_to_train_data ${save_root}/Netflix/NF_TRAIN \
+--path_to_eval_data ${save_root}/Netflix/NF_VALID \
+--hidden_layers ${hidden_layers} \
+--non_linearity_type ${nl_kind} \
+--batch_size ${batch_size} \
+--logdir ${save_root}/nfull-aug-${aug_step}-np-${noise_prob}-${hidden_layers}-bs-${batch_size}-${nl_kind}-dp-${drop_prob}-${num_epochs}-${weight_decay}-${lr}-${optimizer} \
+--drop_prob ${drop_prob} \
+--optimizer ${optimizer} \
+--lr ${lr} \
+--weight_decay ${weight_decay} \
+--aug_step ${aug_step} \
+--noise_prob ${noise_prob} \
+--num_epochs ${num_epochs} \
+--summary_frequency ${summary_frequency}

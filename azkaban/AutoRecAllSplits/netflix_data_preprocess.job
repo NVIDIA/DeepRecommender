@@ -1,0 +1,19 @@
+source_dir=/home/okuchaiev/repos/cuRecs/code/RecoEncoder
+type=command
+command=mkdir -p ${save_root}/Netflix/N3M_TRAIN
+command.1=mkdir -p ${save_root}/Netflix/N3M_VALID
+command.2=mkdir -p ${save_root}/Netflix/N3M_TEST
+
+command.3=mkdir -p ${save_root}/Netflix/N6M_TRAIN
+command.4=mkdir -p ${save_root}/Netflix/N6M_VALID
+command.5=mkdir -p ${save_root}/Netflix/N6M_TEST
+
+command.6=mkdir -p ${save_root}/Netflix/N1Y_TRAIN
+command.7=mkdir -p ${save_root}/Netflix/N1Y_VALID
+command.8=mkdir -p ${save_root}/Netflix/N1Y_TEST
+
+command.9=mkdir -p ${save_root}/Netflix/NF_TRAIN
+command.10=mkdir -p ${save_root}/Netflix/NF_VALID
+command.11=mkdir -p ${save_root}/Netflix/NF_TEST
+
+command.12=python ${source_dir}/data_utils/netflix_data_convert.py ${path2raw_netflix_train} ${save_root}/Netflix
