@@ -1,5 +1,6 @@
 # Copyright (c) 2017 NVIDIA Corporation
 import unittest
+import sys
 from .context import reco_encoder
 
 class UserItemRecDataProviderTest(unittest.TestCase):

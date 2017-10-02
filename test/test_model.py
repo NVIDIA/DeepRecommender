@@ -3,8 +3,10 @@ import unittest
 import sys
 sys.path.append('data')
 sys.path.append('model')
+import torch
 from .context import reco_encoder
 import torch.optim as optim
+import torch.nn as nn
 from torch.autograd import Variable
 
 class iRecAutoEncoderTest(unittest.TestCase):
