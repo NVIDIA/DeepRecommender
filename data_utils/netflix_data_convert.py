@@ -1,5 +1,5 @@
 # Copyright (c) 2017 NVIDIA Corporation
-from os import listdir, path
+from os import listdir, path, makedirs
 import random
 import sys
 import time
@@ -75,6 +75,13 @@ def create_NETFLIX_data_timesplit(all_data,
 
 
 def main(args):
+  # create necessary folders:
+  for output_dir in [
+    "Netflix/N3M_TRAIN", "Netflix/N3M_VALID", "Netflix/N3M_TEST", "Netflix/N6M_TRAIN",
+    "Netflix/N6M_VALID", "Netflix/N6M_TEST", "Netflix/N1Y_TRAIN", "Netflix/N1Y_VALID",
+    "Netflix/N1Y_TEST", "Netflix/NF_TRAIN", "Netflix/NF_VALID", "Netflix/NF_TEST"]:
+    makedirs(output_dir, exist_ok=True)
+
   user2id_map = dict()
   item2id_map = dict()
   userId = 0

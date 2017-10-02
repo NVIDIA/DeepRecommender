@@ -1,3 +1,9 @@
+# Data files and folders
+download/
+training_set/
+nf_prize_dataset.tar.gz
+Netflix/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
