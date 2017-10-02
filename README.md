@@ -22,29 +22,16 @@ $ python -m unittest test/test_model.py
 
 ### Get the data
 
+**Note: Run all these commands within your `DeepRecommender` folder**
+
 [Netflix prize](http://netflixprize.com/)
 
-* ```$ mkdir -p ~/Recommendations``` you can use any other folder name
-* Download from [here](http://academictorrents.com/details/9b13183dc4d60676b773c9e2cd6de5e5542cee9a) to ```~/Recommendations```
-* ```$ cd ~/Recommendations```
-* ```$ tar -xvf nf_prize_dataset.tar.gz```
-* ```$ tar -xf download/training_set.tar ```
-* Create necessary folders
+* Download from [here](http://academictorrents.com/details/9b13183dc4d60676b773c9e2cd6de5e5542cee9a) into your ```DeepRecommender``` folder
 ```
-mkdir -p Netflix/N3M_TRAIN
-mkdir -p Netflix/N3M_VALID
-mkdir -p Netflix/N3M_TEST
-mkdir -p Netflix/N6M_TRAIN
-mkdir -p Netflix/N6M_VALID
-mkdir -p Netflix/N6M_TEST
-mkdir -p Netflix/N1Y_TRAIN
-mkdir -p Netflix/N1Y_VALID
-mkdir -p Netflix/N1Y_TEST
-mkdir -p Netflix/NF_TRAIN
-mkdir -p Netflix/NF_VALID
-mkdir -p Netflix/NF_TEST
+$ tar -xvf nf_prize_dataset.tar.gz
+$ tar -xf download/training_set.tar
+$ python ./data_utils/netflix_data_convert.py training_set Netflix
 ```
-* ```$ python ./data_utils/netflix_data_convert.py training_set Netflix```. (run from your `DeepRecommender` folder)
 
 #### Data stats
 | Dataset  | Netflix 3 months | Netflix 6 months | Netflix 1 year | Netflix full |
