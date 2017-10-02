@@ -80,11 +80,7 @@ def main(args):
     "Netflix/N3M_TRAIN", "Netflix/N3M_VALID", "Netflix/N3M_TEST", "Netflix/N6M_TRAIN",
     "Netflix/N6M_VALID", "Netflix/N6M_TEST", "Netflix/N1Y_TRAIN", "Netflix/N1Y_VALID",
     "Netflix/N1Y_TEST", "Netflix/NF_TRAIN", "Netflix/NF_VALID", "Netflix/NF_TEST"]:
-    try:
-       makedirs(output_dir)
-    except OSError as exception:
-      if exception.errno != errno.EEXIST:
-        raise
+    makedirs(output_dir, exist_ok=True)
 
   user2id_map = dict()
   item2id_map = dict()
