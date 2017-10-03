@@ -1,15 +1,11 @@
 # Copyright (c) 2017 NVIDIA Corporation
 import torch
 import argparse
+import copy
 from reco_encoder.data import input_layer
 from reco_encoder.model import model
-import torch.optim as optim
-import torch.nn as nn
 from torch.autograd import Variable
-import copy
-import time
 from pathlib import Path
-import numpy as np
 
 parser = argparse.ArgumentParser(description='RecoEncoder')
 
