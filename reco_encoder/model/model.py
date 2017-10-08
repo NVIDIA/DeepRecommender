@@ -37,7 +37,7 @@ class AutoEncoder(nn.Module):
     self._dp_drop_prob = dp_drop_prob
     if dp_drop_prob > 0:
       self.drop = nn.Dropout(dp_drop_prob)
-    self._last = len(layer_sizes) - 1
+    self._last = len(layer_sizes) - 2
     self._nl_type = nl_type
     self.encode_w = nn.ParameterList(
       [nn.Parameter(torch.rand(layer_sizes[i + 1], layer_sizes[i])) for i in range(len(layer_sizes) - 1)])
