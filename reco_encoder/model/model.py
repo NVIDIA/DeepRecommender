@@ -6,6 +6,7 @@ import torch.nn.init as weight_init
 from torch.autograd import Variable
 
 def activation(input, kind):
+  #print("Activation: {}".format(kind))
   if kind == 'selu':
     return F.selu(input)
   elif kind == 'relu':
@@ -32,9 +33,21 @@ def MSEloss(inputs, targets, size_avarage=False):
   return criterion(inputs * mask.float(), targets), Variable(torch.Tensor([1.0])) if size_avarage else num_ratings
 
 class AutoEncoder(nn.Module):
-  def __init__(self, layer_sizes, nl_type='selu', is_constrained=True, dp_drop_prob=0.0):
+  def __init__(self, layer_sizes, nl_type='selu', is_constrained=True, dp_drop_prob=0.0, last_layer_activations=True):
+    """
+    Describes an AutoEncoder model
+    :param layer_sizes: Encoder network description. Should start with feature size (e.g. dimensionality of x).
+    For example: [10000, 1024, 512] will result in:
+      - encoder 2 layers: 10000x1024 and 1024x512. Representation layer (z) will be 512
+      - decoder 2 layers: 512x1024 and 1024x10000.
+    :param nl_type: (default 'selu') Type of no-linearity
+    :param is_constrained: (default: True) Should constrain decoder weights
+    :param dp_drop_prob: (default: 0.0) Dropout drop probability
+    :param last_layer_activations: (default: True) Whether to apply activations on last decoder layer
+    """
     super(AutoEncoder, self).__init__()
     self._dp_drop_prob = dp_drop_prob
+    self._last_layer_activations = last_layer_activations
     if dp_drop_prob > 0:
       self.drop = nn.Dropout(dp_drop_prob)
     self._last = len(layer_sizes) - 2
@@ -92,14 +105,14 @@ class AutoEncoder(nn.Module):
       for ind, w in enumerate(list(reversed(self.encode_w))): # constrained autoencode re-uses weights from encoder
         z = activation(input=F.linear(input=z, weight=w.transpose(0, 1), bias=self.decode_b[ind]),
                      # last layer or decoder should not apply non linearities
-                     kind=self._nl_type if ind!=self._last else 'none')
+                     kind=self._nl_type if ind!=self._last or self._last_layer_activations else 'none')
         #if self._dp_drop_prob > 0 and ind!=self._last: # and no dp on last layer
         #  z = self.drop(z)
     else:
       for ind, w in enumerate(self.decode_w):
         z = activation(input=F.linear(input=z, weight=w, bias=self.decode_b[ind]),
                      # last layer or decoder should not apply non linearities
-                     kind=self._nl_type if ind!=self._last else 'none')
+                     kind=self._nl_type if ind!=self._last or self._last_layer_activations else 'none')
         #if self._dp_drop_prob > 0 and ind!=self._last: # and no dp on last layer
         #  z = self.drop(z)
     return z
