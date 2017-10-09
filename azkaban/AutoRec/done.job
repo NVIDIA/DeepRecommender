@@ -1,3 +1,3 @@
 type=command
-dependencies=ConstrainedRecoEncoder,RecoEncoder
+dependencies=ConstrainedRecoEncoder,RecoEncoder,ConstrainedRecoEncoderNoLastLayerNl,RecoEncoderNoLastLayerNl
 command=echo 'Done'

@@ -31,6 +31,8 @@ parser.add_argument('--aug_step', type=int, default=-1, metavar='N',
                     help='do data augmentation every X step')
 parser.add_argument('--constrained', action='store_true',
                     help='constrained autoencoder')
+parser.add_argument('--skip_last_layer_nl', action='store_true',
+                    help='if present, decoder\'s last layer will not apply non-linearity function')
 parser.add_argument('--num_epochs', type=int, default=50, metavar='N',
                     help='maximum number of epochs')
 parser.add_argument('--optimizer', type=str, default="adam", metavar='N',
@@ -116,7 +118,8 @@ def main():
   rencoder = model.AutoEncoder(layer_sizes=[data_layer.vector_dim] + [int(l) for l in args.hidden_layers.split(',')],
                                nl_type=args.non_linearity_type,
                                is_constrained=args.constrained,
-                               dp_drop_prob=args.drop_prob)
+                               dp_drop_prob=args.drop_prob,
+                               last_layer_activations=not args.skip_last_layer_nl)
 
   model_checkpoint = args.logdir + "/model"
   path_to_model = Path(model_checkpoint)
