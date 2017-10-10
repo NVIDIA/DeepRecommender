@@ -1,4 +1,3 @@
-source_dir=/home/okuchaiev/repos/cuRecs/code/RecoEncoder
 type=command
 command=mkdir -p ${save_root}/Netflix/N3M_TRAIN
 command.1=mkdir -p ${save_root}/Netflix/N3M_VALID

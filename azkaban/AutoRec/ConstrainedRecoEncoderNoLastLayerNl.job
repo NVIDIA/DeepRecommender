@@ -1,6 +1,5 @@
 # simple constrained CF auto encoder job
 env.CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
-source_dir=/home/okuchaiev/repos/cuRecs/code/RecoEncoder
 type=command
 dependencies=netflix_data_preprocess
 command=python ${source_dir}/run.py --gpu_ids 0 \

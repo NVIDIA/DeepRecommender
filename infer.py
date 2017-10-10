@@ -13,6 +13,8 @@ parser.add_argument('--drop_prob', type=float, default=0.0, metavar='N',
                     help='dropout drop probability')
 parser.add_argument('--constrained', action='store_true',
                     help='constrained autoencoder')
+parser.add_argument('--skip_last_layer_nl', action='store_true',
+                    help='if present, decoder\'s last layer will not apply non-linearity function')
 parser.add_argument('--hidden_layers', type=str, default="1024,512,512,128", metavar='N',
                     help='hidden layer sizes, comma-separated')
 parser.add_argument('--path_to_train_data', type=str, default="", metavar='N',
@@ -54,7 +56,8 @@ def main():
   rencoder = model.AutoEncoder(layer_sizes=[data_layer.vector_dim] + [int(l) for l in args.hidden_layers.split(',')],
                                nl_type=args.non_linearity_type,
                                is_constrained=args.constrained,
-                               dp_drop_prob=args.drop_prob)
+                               dp_drop_prob=args.drop_prob,
+                               last_layer_activations=not args.skip_last_layer_nl)
 
   path_to_model = Path(args.save_path)
   if path_to_model.is_file():
