@@ -21,6 +21,8 @@ def activation(input, kind):
     return F.elu(input)
   elif kind == 'lrelu':
     return F.leaky_relu(input)
+  elif kind == 'swish':
+    return input*F.sigmoid(input)
   elif kind == 'none':
     return input
   else:
