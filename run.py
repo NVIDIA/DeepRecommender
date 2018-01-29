@@ -54,7 +54,10 @@ args = parser.parse_args()
 print(args)
 
 use_gpu = torch.cuda.is_available() # global flag
-print('GPU is available.') if use_gpu else print('GPU is not available.')
+if use_gpu:
+    print('GPU is available.') 
+else: 
+    print('GPU is not available.')
 
 def do_eval(encoder, evaluation_data_layer):
   encoder.eval()
