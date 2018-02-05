@@ -53,13 +53,19 @@ parser.add_argument('--logdir', type=str, default="logs", metavar='N',
 args = parser.parse_args()
 print(args)
 
+use_gpu = torch.cuda.is_available() # global flag
+if use_gpu:
+    print('GPU is available.') 
+else: 
+    print('GPU is not available.')
+
 def do_eval(encoder, evaluation_data_layer):
   encoder.eval()
   denom = 0.0
   total_epoch_loss = 0.0
   for i, (eval, src) in enumerate(evaluation_data_layer.iterate_one_epoch_eval()):
-    inputs = Variable(src.cuda().to_dense())
-    targets = Variable(eval.cuda().to_dense())
+    inputs = Variable(src.cuda().to_dense() if use_gpu else src.to_dense())
+    targets = Variable(eval.cuda().to_dense() if use_gpu else eval.to_dense())
     outputs = encoder(inputs)
     loss, num_ratings = model.MSEloss(outputs, targets)
     total_epoch_loss += loss.data[0]
@@ -139,7 +145,8 @@ def main():
   if len(gpu_ids)>1:
     rencoder = nn.DataParallel(rencoder,
                                device_ids=gpu_ids)
-  rencoder = rencoder.cuda()
+  
+  if use_gpu: rencoder = rencoder.cuda()
 
   if args.optimizer == "adam":
     optimizer = optim.Adam(rencoder.parameters(),
@@ -177,7 +184,7 @@ def main():
     if args.optimizer == "momentum":
       scheduler.step()
     for i, mb in enumerate(data_layer.iterate_one_epoch()):
-      inputs = Variable(mb.cuda().to_dense())
+      inputs = Variable(mb.cuda().to_dense() if use_gpu else mb.to_dense())
       optimizer.zero_grad()
       outputs = rencoder(inputs)
       loss, num_ratings = model.MSEloss(outputs, inputs)

@@ -31,6 +31,12 @@ parser.add_argument('--predictions_path', type=str, default="out.txt", metavar='
 args = parser.parse_args()
 print(args)
 
+use_gpu = torch.cuda.is_available() # global flag
+if use_gpu:
+    print('GPU is available.') 
+else: 
+    print('GPU is not available.')
+
 def main():
   params = dict()
   params['batch_size'] = 1
@@ -71,14 +77,15 @@ def main():
   print('######################################################')
   print('######################################################')
   rencoder.eval()
-  rencoder = rencoder.cuda()
+  if use_gpu: rencoder = rencoder.cuda()
+  
   inv_userIdMap = {v: k for k, v in data_layer.userIdMap.items()}
   inv_itemIdMap = {v: k for k, v in data_layer.itemIdMap.items()}
 
   eval_data_layer.src_data = data_layer.data
   with open(args.predictions_path, 'w') as outf:
     for i, ((out, src), majorInd) in enumerate(eval_data_layer.iterate_one_epoch_eval(for_inf=True)):
-      inputs = Variable(src.cuda().to_dense())
+      inputs = Variable(src.cuda().to_dense() if use_gpu else src.to_dense())
       targets_np = out.to_dense().numpy()[0, :]
       outputs = rencoder(inputs).cpu().data.numpy()[0, :]
       non_zeros = targets_np.nonzero()[0].tolist()
