@@ -31,7 +31,7 @@ def main(args):
   min_ts = 100000000000
   max_ts = 0
   total_rating_count = 0
-  with open(inpt, 'r') as inpt_f:
+  with open(inpt, 'r') as inpt_f: #ratings.csv headers: userId,movieId,rating,timestamp
     for line in inpt_f:
       if 'userId' in line:
         continue
@@ -65,19 +65,29 @@ def main(args):
   training_data = dict()
   validation_data = dict()
   test_data = dict()
+  train_set_items = set()
+
   for userId in data.keys():
     if len(data[userId]) < 2:
-      print("WARNING")
+      #print("WARNING, userId {} has less than 2 ratings, skipping user...".format(userId))
       continue
     time_sorted_ratings = sorted(data[userId], key=lambda x: x[2]) # sort by timestamp
     last_train_ind = floor(percent * len(time_sorted_ratings))
     training_data[userId] = time_sorted_ratings[:last_train_ind]
+    for rating_item in time_sorted_ratings[:last_train_ind]:
+        train_set_items.add(rating_item[0]) # keep track of items from training set
     p = random.random()
     if p <= 0.5:
       validation_data[userId] = time_sorted_ratings[last_train_ind:]
     else:
       test_data[userId] = time_sorted_ratings[last_train_ind:]
 
+  # remove items not not seen in training set
+  for userId, userRatings in test_data.items():
+    test_data[userId] = [rating for rating in userRatings if rating[0] in train_set_items]
+  for userId, userRatings in validation_data.items():
+    validation_data[userId] = [rating for rating in userRatings if rating[0] in train_set_items]    
+    
   print("Training Data")
   print_stats(training_data)
   save_data_to_file(training_data, out_prefix+".train")
@@ -91,4 +101,5 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+  main(sys.argv)
+  
