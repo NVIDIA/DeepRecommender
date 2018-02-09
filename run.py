@@ -36,7 +36,7 @@ parser.add_argument('--skip_last_layer_nl', action='store_true',
                     help='if present, decoder\'s last layer will not apply non-linearity function')
 parser.add_argument('--num_epochs', type=int, default=50, metavar='N',
                     help='maximum number of epochs')
-parser.add_argument('--optimizer', type=str, default="adam", metavar='N',
+parser.add_argument('--optimizer', type=str, default="momentum", metavar='N',
                     help='optimizer kind: adam, momentum, adagrad or rmsprop')
 parser.add_argument('--hidden_layers', type=str, default="1024,512,512,128", metavar='N',
                     help='hidden layer sizes, comma-separated')
