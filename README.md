@@ -9,7 +9,7 @@ The model is based on deep AutoEncoders.
 ## Requirements
 * Python 3.6
 * [Pytorch](http://pytorch.org/)
-* CUDA (recommended version is 8.0)
+* CUDA (recommended version >= 8.0)
 
 ## Getting Started
 
@@ -19,6 +19,9 @@ The code is intended to run on GPU. Last test can take a minute or two.
 $ python -m unittest test/data_layer_tests.py
 $ python -m unittest test/test_model.py
 ```
+
+### Tutorial
+Checkout [this tutorial](https://github.com/miguelgfierro/sciblog_support/blob/master/Intro_to_Recommendation_Systems/Intro_Recommender.ipynb) by [miguelgfierro](https://github.com/miguelgfierro).
 
 ### Get the data
 
