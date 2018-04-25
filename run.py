@@ -15,7 +15,7 @@ from math import sqrt
 import numpy as np
 import os
 
-scale_factor = 0.01
+scale_factor = 128.0
 
 parser = argparse.ArgumentParser(description='RecoEncoder')
 parser.add_argument('--lr', type=float, default=0.00001, metavar='N',
