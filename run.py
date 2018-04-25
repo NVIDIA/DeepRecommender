@@ -15,6 +15,8 @@ from math import sqrt
 import numpy as np
 import os
 
+scale_factor = 0.01
+
 parser = argparse.ArgumentParser(description='RecoEncoder')
 parser.add_argument('--lr', type=float, default=0.00001, metavar='N',
                     help='learning rate')
@@ -104,11 +106,8 @@ def log_var_and_grad_summaries(logger, layers, global_step, prefix, log_histogra
 ######
 def prep_param_lists(model):
   model_params = [p for p in model.parameters() if p.requires_grad]
-  master_params = [p.detach().clone().float() for p in model_params]
+  master_params = [p.clone().float().detach() for p in model_params]
   for p in master_params:
-    print("AAAAAAAAA")
-    print(p)
-    print("AAAAAAAAA")
     p.requires_grad = True
   return model_params, master_params
 
@@ -224,9 +223,14 @@ def main():
       outputs = rencoder(inputs)
       loss, num_ratings = model.MSEloss(outputs, inputs)
       loss = loss / num_ratings.half()
-      loss.backward()
+      scaled_loss = scale_factor * loss.float()
+      scaled_loss.backward()
+      #loss.backward()
+
       ##
       model_grads_to_master_grads(model_params, master_params)
+      for param in master_params:
+        param.grad.data.mul_(1./scale_factor)
       ##
       optimizer.step()
       ##
