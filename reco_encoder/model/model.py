@@ -32,7 +32,7 @@ def MSEloss(inputs, targets, size_avarage=False):
   mask = targets != 0
   num_ratings = torch.sum(mask.float())
   criterion = nn.MSELoss(size_average=size_avarage)
-  return criterion(inputs * mask.float(), targets), Variable(torch.Tensor([1.0])) if size_avarage else num_ratings
+  return criterion(inputs * mask.float().half(), targets), Variable(torch.Tensor([1.0]).half()) if size_avarage else num_ratings
 
 class AutoEncoder(nn.Module):
   def __init__(self, layer_sizes, nl_type='selu', is_constrained=True, dp_drop_prob=0.0, last_layer_activations=True):
