@@ -8,25 +8,27 @@ from torch.autograd import Variable
 def activation(input, kind):
   #print("Activation: {}".format(kind))
   if kind == 'selu':
-    return F.selu(input)
+    res = F.selu(input)
   elif kind == 'relu':
-    return F.relu(input)
+    res = F.relu(input)
   elif kind == 'relu6':
-    return F.relu6(input)
+    res = F.relu6(input)
   elif kind == 'sigmoid':
-    return F.sigmoid(input)
+    res = F.sigmoid(input)
   elif kind == 'tanh':
-    return F.tanh(input)
+    res = F.tanh(input)
   elif kind == 'elu':
-    return F.elu(input)
+    res = F.elu(input)
   elif kind == 'lrelu':
-    return F.leaky_relu(input)
+    res = F.leaky_relu(input)
   elif kind == 'swish':
-    return input*F.sigmoid(input)
+    res = input*F.sigmoid(input)
   elif kind == 'none':
-    return input
+    res = input
   else:
     raise ValueError('Unknown non-linearity type')
+  return torch.max(res, torch.ones_like(res)*6.0)
+  #return torch.max(res, torch.HalfTensor(1).fill_(6.0))
 
 def MSEloss(inputs, targets, size_avarage=False):
   mask = targets != 0

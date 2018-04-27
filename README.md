@@ -63,13 +63,11 @@ python run.py --gpu_ids 0 \
 --optimizer momentum \
 --lr 0.005 \
 --weight_decay 0 \
---aug_step 0 \
+--aug_step 1 \
 --noise_prob 0 \
 --num_epochs 12 \
 --summary_frequency 1000
 ```
-
-WARNING: aug_step is not working in mixed_precision mode yet, so keep it to 0.
 
 Note that you can run Tensorboard in parallel
 ```

@@ -266,8 +266,18 @@ def main():
           outputs = rencoder(inputs)
           loss, num_ratings = model.MSEloss(outputs, inputs)
           loss = loss / num_ratings.half()
-          loss.backward()
+          scaled_loss = scale_factor * loss.float()
+          scaled_loss.backward()
+          #loss.backward()
+          ##
+          model_grads_to_master_grads(model_params, master_params)
+          for param in master_params:
+            param.grad.data.mul_(1. / scale_factor)
+          ##
           optimizer.step()
+          ##
+          master_params_to_model_params(model_params, master_params)
+          ##
 
     e_end_time = time.time()
     print('Total epoch {} finished in {} seconds with TRAINING RMSE loss: {}'
