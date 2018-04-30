@@ -14,6 +14,7 @@ from logger import Logger
 from math import sqrt
 import numpy as np
 import os
+import sys
 
 scale_factor = 128.0
 
@@ -243,6 +244,7 @@ def main():
 
       if i % args.summary_frequency == 0:
         print('[%d, %5d] RMSE: %.7f' % (epoch, i, sqrt(t_loss / t_loss_denom)))
+        sys.stdout.flush()
         logger.scalar_summary("Training_RMSE", sqrt(t_loss/t_loss_denom), global_step)
         t_loss = 0
         t_loss_denom = 0.0
@@ -282,6 +284,7 @@ def main():
     e_end_time = time.time()
     print('Total epoch {} finished in {} seconds with TRAINING RMSE loss: {}'
           .format(epoch, e_end_time - e_start_time, sqrt(total_epoch_loss/denom)))
+    sys.stdout.flush()
     logger.scalar_summary("Training_RMSE_per_epoch", sqrt(total_epoch_loss/denom), epoch)
     logger.scalar_summary("Epoch_time", e_end_time - e_start_time, epoch)
     if epoch % 3 == 0 or epoch == args.num_epochs - 1:
