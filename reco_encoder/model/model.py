@@ -27,8 +27,7 @@ def activation(input, kind):
     res = input
   else:
     raise ValueError('Unknown non-linearity type')
-  return torch.max(res, torch.ones_like(res)*6.0)
-  #return torch.max(res, torch.HalfTensor(1).fill_(6.0))
+  return res
 
 def MSEloss(inputs, targets, size_avarage=False):
   mask = targets != 0
