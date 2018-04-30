@@ -72,7 +72,7 @@ def do_eval(encoder, evaluation_data_layer):
     outputs = encoder(inputs)
     loss, num_ratings = model.MSEloss(outputs, targets)
     total_epoch_loss += loss.data[0]
-    denom += num_ratings.data.half()[0]
+    denom += num_ratings.data.float()[0]
   return sqrt(total_epoch_loss / denom)
 
 def log_var_and_grad_summaries(logger, layers, global_step, prefix, log_histograms=False):
@@ -219,10 +219,10 @@ def main():
       scheduler.step()
     for i, mb in enumerate(data_layer.iterate_one_epoch()):
       inputs = Variable(mb.cuda().to_dense().half() if use_gpu else mb.to_dense())
-      optimizer.zero_grad()
+      rencoder.zero_grad()
       outputs = rencoder(inputs)
       loss, num_ratings = model.MSEloss(outputs, inputs)
-      loss = loss / num_ratings.half()
+      loss = loss / num_ratings.float()
       scaled_loss = scale_factor * loss.float()
       scaled_loss.backward()
       #loss.backward()
@@ -262,10 +262,10 @@ def main():
           inputs = Variable(outputs.data)
           if args.noise_prob > 0.0:
             inputs = dp(inputs)
-          optimizer.zero_grad()
+          rencoder.zero_grad()
           outputs = rencoder(inputs)
           loss, num_ratings = model.MSEloss(outputs, inputs)
-          loss = loss / num_ratings.half()
+          loss = loss / num_ratings.float()
           scaled_loss = scale_factor * loss.float()
           scaled_loss.backward()
           #loss.backward()
