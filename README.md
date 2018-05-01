@@ -11,6 +11,11 @@ The model is based on deep AutoEncoders.
 * [Pytorch](http://pytorch.org/)
 * CUDA (recommended version >= 8.0)
 
+## Training using mixed precision with Tensor Cores
+* You would need NVIDIA Volta-based GPU
+* Checkout [mixed precision branch](https://github.com/NVIDIA/DeepRecommender/tree/mp_branch)
+* For theory on mixed precision training see [Mixed Precision Training paper](https://arxiv.org/abs/1710.03740)
+
 ## Getting Started
 
 ### Run unittests first
