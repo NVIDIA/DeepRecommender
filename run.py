@@ -14,6 +14,9 @@ from logger import Logger
 from math import sqrt
 import numpy as np
 import os
+import sys
+
+scale_factor = 128.0
 
 parser = argparse.ArgumentParser(description='RecoEncoder')
 parser.add_argument('--lr', type=float, default=0.00001, metavar='N',
@@ -65,12 +68,12 @@ def do_eval(encoder, evaluation_data_layer):
   denom = 0.0
   total_epoch_loss = 0.0
   for i, (eval, src) in enumerate(evaluation_data_layer.iterate_one_epoch_eval()):
-    inputs = Variable(src.cuda().to_dense() if use_gpu else src.to_dense())
-    targets = Variable(eval.cuda().to_dense() if use_gpu else eval.to_dense())
+    inputs = Variable(src.cuda().to_dense().half() if use_gpu else src.to_dense().half())
+    targets = Variable(eval.cuda().to_dense().half() if use_gpu else eval.to_dense().half())
     outputs = encoder(inputs)
     loss, num_ratings = model.MSEloss(outputs, targets)
     total_epoch_loss += loss.data[0]
-    denom += num_ratings.data[0]
+    denom += num_ratings.data.float()[0]
   return sqrt(total_epoch_loss / denom)
 
 def log_var_and_grad_summaries(logger, layers, global_step, prefix, log_histograms=False):
@@ -85,20 +88,45 @@ def log_var_and_grad_summaries(logger, layers, global_step, prefix, log_histogra
   """
   for ind, w in enumerate(layers):
     # Variables
-    w_var = w.data.cpu().numpy()
+    w_var = w.data.float().cpu().numpy()
     logger.scalar_summary("Variables/FrobNorm/{}_{}".format(prefix, ind), np.linalg.norm(w_var),
                           global_step)
     if log_histograms:
-      logger.histo_summary(tag="Variables/{}_{}".format(prefix, ind), values=w.data.cpu().numpy(),
+      logger.histo_summary(tag="Variablmodeles/{}_{}".format(prefix, ind), values=w.data.cpu().numpy(),
                            step=global_step)
 
     # Gradients
-    w_grad = w.grad.data.cpu().numpy()
+    w_grad = w.grad.float().data.cpu().numpy()
     logger.scalar_summary("Gradients/FrobNorm/{}_{}".format(prefix, ind), np.linalg.norm(w_grad),
                           global_step)
     if log_histograms:
-      logger.histo_summary(tag="Gradients/{}_{}".format(prefix, ind), values=w.grad.data.cpu().numpy(),
-                         step=global_step)
+      logger.histo_summary(tag="Gradients/{}_{}".format(prefix, ind), values=w.grad.float().data.cpu().numpy(),
+                          step=global_step)
+
+
+######
+def prep_param_lists(model):
+  model_params = [p for p in model.parameters() if p.requires_grad]
+  master_params = [p.clone().float().detach() for p in model_params]
+  for p in master_params:
+    p.requires_grad = True
+  return model_params, master_params
+
+def master_params_to_model_params(model_params, master_params):
+  for model, master in zip(model_params, master_params):
+    model.data.copy_(master.data)
+
+def model_grads_to_master_grads(model_params, master_params):
+  for model, master in zip(model_params, master_params):
+    if master.grad is None:
+      master.grad = Variable(
+        master.data.new(*master.data.size())
+      )
+    master.grad.data.copy_(model.grad.data)
+
+######
+
+
 
 def main():
   logger = Logger(args.logdir)
@@ -127,6 +155,8 @@ def main():
                                is_constrained=args.constrained,
                                dp_drop_prob=args.drop_prob,
                                last_layer_activations=not args.skip_last_layer_nl)
+
+
   os.makedirs(args.logdir, exist_ok=True)
   model_checkpoint = args.logdir + "/model"
   path_to_model = Path(model_checkpoint)
@@ -147,27 +177,31 @@ def main():
     rencoder = nn.DataParallel(rencoder,
                                device_ids=gpu_ids)
   
-  if use_gpu: rencoder = rencoder.cuda()
+  if use_gpu: rencoder = rencoder.cuda().half()
+
+  ##########
+  model_params, master_params = prep_param_lists(rencoder)
+  ##########
 
   if args.optimizer == "adam":
-    optimizer = optim.Adam(rencoder.parameters(),
+    optimizer = optim.Adam(master_params,#rencoder.parameters(),
                            lr=args.lr,
                            weight_decay=args.weight_decay)
   elif args.optimizer == "adagrad":
-    optimizer = optim.Adagrad(rencoder.parameters(),
+    optimizer = optim.Adagrad(master_params, #rencoder.parameters(),
                               lr=args.lr,
                               weight_decay=args.weight_decay)
   elif args.optimizer == "momentum":
-    optimizer = optim.SGD(rencoder.parameters(),
+    optimizer = optim.SGD(master_params,#rencoder.parameters(),
                           lr=args.lr, momentum=0.9,
                           weight_decay=args.weight_decay)
     scheduler = MultiStepLR(optimizer, milestones=[24, 36, 48, 66, 72], gamma=0.5)
   elif args.optimizer == "rmsprop":
-    optimizer = optim.RMSprop(rencoder.parameters(),
+    optimizer = optim.RMSprop(master_params,#rencoder.parameters(),
                               lr=args.lr, momentum=0.9,
                               weight_decay=args.weight_decay)
   else:
-    raise  ValueError('Unknown optimizer kind')
+    raise ValueError('Unknown optimizer kind')
 
   t_loss = 0.0
   t_loss_denom = 0.0
@@ -185,19 +219,32 @@ def main():
     if args.optimizer == "momentum":
       scheduler.step()
     for i, mb in enumerate(data_layer.iterate_one_epoch()):
-      inputs = Variable(mb.cuda().to_dense() if use_gpu else mb.to_dense())
-      optimizer.zero_grad()
+      inputs = Variable(mb.cuda().to_dense().half() if use_gpu else mb.to_dense())
+      rencoder.zero_grad()
       outputs = rencoder(inputs)
       loss, num_ratings = model.MSEloss(outputs, inputs)
-      loss = loss / num_ratings
-      loss.backward()
+      loss = loss / num_ratings.float()
+      scaled_loss = scale_factor * loss.float()
+      scaled_loss.backward()
+      #loss.backward()
+
+      ##
+      model_grads_to_master_grads(model_params, master_params)
+      for param in master_params:
+        param.grad.data.mul_(1./scale_factor)
+      ##
       optimizer.step()
+      ##
+      master_params_to_model_params(model_params, master_params)
+      ##
+
       global_step += 1
       t_loss += loss.data[0]
       t_loss_denom += 1
 
       if i % args.summary_frequency == 0:
         print('[%d, %5d] RMSE: %.7f' % (epoch, i, sqrt(t_loss / t_loss_denom)))
+        sys.stdout.flush()
         logger.scalar_summary("Training_RMSE", sqrt(t_loss/t_loss_denom), global_step)
         t_loss = 0
         t_loss_denom = 0.0
@@ -217,16 +264,27 @@ def main():
           inputs = Variable(outputs.data)
           if args.noise_prob > 0.0:
             inputs = dp(inputs)
-          optimizer.zero_grad()
+          rencoder.zero_grad()
           outputs = rencoder(inputs)
           loss, num_ratings = model.MSEloss(outputs, inputs)
-          loss = loss / num_ratings
-          loss.backward()
+          loss = loss / num_ratings.float()
+          scaled_loss = scale_factor * loss.float()
+          scaled_loss.backward()
+          #loss.backward()
+          ##
+          model_grads_to_master_grads(model_params, master_params)
+          for param in master_params:
+            param.grad.data.mul_(1. / scale_factor)
+          ##
           optimizer.step()
+          ##
+          master_params_to_model_params(model_params, master_params)
+          ##
 
     e_end_time = time.time()
     print('Total epoch {} finished in {} seconds with TRAINING RMSE loss: {}'
           .format(epoch, e_end_time - e_start_time, sqrt(total_epoch_loss/denom)))
+    sys.stdout.flush()
     logger.scalar_summary("Training_RMSE_per_epoch", sqrt(total_epoch_loss/denom), epoch)
     logger.scalar_summary("Epoch_time", e_end_time - e_start_time, epoch)
     if epoch % 3 == 0 or epoch == args.num_epochs - 1:
