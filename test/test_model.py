@@ -31,7 +31,7 @@ class iRecAutoEncoderTest(unittest.TestCase):
         loss = loss / num_ratings
         loss.backward()
         optimizer.step()
-        print('[%d, %5d] loss: %.7f' % (epoch, i, loss.data[0]))
+        print('[%d, %5d] loss: %.7f' % (epoch, i, loss.item()))
 
   def test_GPU(self):
     print("iRecAutoEncoderTest Test on GPU started")
@@ -56,7 +56,7 @@ class iRecAutoEncoderTest(unittest.TestCase):
         loss = loss / num_ratings
         loss.backward()
         optimizer.step()
-        total_epoch_loss += loss.data[0]
+        total_epoch_loss += loss.item()
         denom += 1
       print("Total epoch {} loss: {}".format(epoch, total_epoch_loss/denom))
 
@@ -81,7 +81,7 @@ class uRecAutoEncoderTest(unittest.TestCase):
         loss = loss / num_ratings
         loss.backward()
         optimizer.step()
-        print('[%d, %5d] loss: %.7f' % (epoch, i, loss.data[0]))
+        print('[%d, %5d] loss: %.7f' % (epoch, i, loss.item()))
         if i == 5: # too much compute for CPU
           break
 
@@ -108,7 +108,7 @@ class uRecAutoEncoderTest(unittest.TestCase):
         loss = loss / num_ratings
         loss.backward()
         optimizer.step()
-        total_epoch_loss += loss.data[0]
+        total_epoch_loss += loss.item()
         denom += 1
       print("Total epoch {} loss: {}".format(epoch, total_epoch_loss / denom))
 

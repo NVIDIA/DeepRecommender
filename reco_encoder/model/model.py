@@ -57,7 +57,7 @@ class AutoEncoder(nn.Module):
     self.encode_w = nn.ParameterList(
       [nn.Parameter(torch.rand(layer_sizes[i + 1], layer_sizes[i])) for i in range(len(layer_sizes) - 1)])
     for ind, w in enumerate(self.encode_w):
-      weight_init.xavier_uniform(w)
+      weight_init.xavier_uniform_(w)
 
     self.encode_b = nn.ParameterList(
       [nn.Parameter(torch.zeros(layer_sizes[i + 1])) for i in range(len(layer_sizes) - 1)])
@@ -69,7 +69,7 @@ class AutoEncoder(nn.Module):
       self.decode_w = nn.ParameterList(
       [nn.Parameter(torch.rand(reversed_enc_layers[i + 1], reversed_enc_layers[i])) for i in range(len(reversed_enc_layers) - 1)])
       for ind, w in enumerate(self.decode_w):
-        weight_init.xavier_uniform(w)
+        weight_init.xavier_uniform_(w)
     self.decode_b = nn.ParameterList(
       [nn.Parameter(torch.zeros(reversed_enc_layers[i + 1])) for i in range(len(reversed_enc_layers) - 1)])
 
