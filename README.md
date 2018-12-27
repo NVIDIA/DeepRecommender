@@ -8,8 +8,9 @@ The model is based on deep AutoEncoders.
 
 ## Requirements
 * Python 3.6
-* [Pytorch](http://pytorch.org/)
+* [Pytorch](http://pytorch.org/): `pipenv install`
 * CUDA (recommended version >= 8.0)
+
 
 ## Training using mixed precision with Tensor Cores
 * You would need NVIDIA Volta-based GPU
