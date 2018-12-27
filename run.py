@@ -71,8 +71,8 @@ def do_eval(encoder, evaluation_data_layer):
     targets = Variable(eval.cuda().to_dense() if use_gpu else eval.to_dense())
     outputs = encoder(inputs)
     loss, num_ratings = model.MSEloss(outputs, targets)
-    total_epoch_loss += loss.data[0]
-    denom += num_ratings.data[0]
+    total_epoch_loss += loss.item()
+    denom += num_ratings.item()
   return sqrt(total_epoch_loss / denom)
 
 def log_var_and_grad_summaries(logger, layers, global_step, prefix, log_histograms=False):
@@ -195,7 +195,7 @@ def main():
       loss.backward()
       optimizer.step()
       global_step += 1
-      t_loss += loss.data[0]
+      t_loss += loss.item()
       t_loss_denom += 1
 
       if i % args.summary_frequency == 0:
@@ -209,7 +209,7 @@ def main():
           log_var_and_grad_summaries(logger, rencoder.decode_w, global_step, "Decode_W")
         log_var_and_grad_summaries(logger, rencoder.decode_b, global_step, "Decode_b")
 
-      total_epoch_loss += loss.data[0]
+      total_epoch_loss += loss.item()
       denom += 1
 
       #if args.aug_step > 0 and i % args.aug_step == 0 and i > 0:
