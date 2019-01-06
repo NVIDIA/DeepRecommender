@@ -28,11 +28,11 @@ def activation(input, kind):
   else:
     raise ValueError('Unknown non-linearity type')
 
-def MSEloss(inputs, targets, size_avarage=False):
+def MSEloss(inputs, targets, size_average=False):
   mask = targets != 0
   num_ratings = torch.sum(mask.float())
-  criterion = nn.MSELoss(size_average=size_avarage)
-  return criterion(inputs * mask.float(), targets), Variable(torch.Tensor([1.0])) if size_avarage else num_ratings
+  criterion = nn.MSELoss(reduction='sum' if not size_average else 'mean')
+  return criterion(inputs * mask.float(), targets), Variable(torch.Tensor([1.0])) if size_average else num_ratings
 
 class AutoEncoder(nn.Module):
   def __init__(self, layer_sizes, nl_type='selu', is_constrained=True, dp_drop_prob=0.0, last_layer_activations=True):
@@ -57,7 +57,7 @@ class AutoEncoder(nn.Module):
     self.encode_w = nn.ParameterList(
       [nn.Parameter(torch.rand(layer_sizes[i + 1], layer_sizes[i])) for i in range(len(layer_sizes) - 1)])
     for ind, w in enumerate(self.encode_w):
-      weight_init.xavier_uniform(w)
+      weight_init.xavier_uniform_(w)
 
     self.encode_b = nn.ParameterList(
       [nn.Parameter(torch.zeros(layer_sizes[i + 1])) for i in range(len(layer_sizes) - 1)])
