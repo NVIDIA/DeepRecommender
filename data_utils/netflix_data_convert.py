@@ -4,6 +4,7 @@ import random
 import sys
 import time
 import datetime
+import os
 
 def print_stats(data):
   total_ratings = 0
@@ -17,7 +18,10 @@ def save_data_to_file(data, filename):
   with open(filename, 'w') as out:
     for userId in data:
       for record in data[userId]:
-        out.write("{}\t{}\t{}\n".format(userId, record[0], record[1]))
+        if not int(os.environ.get('SAVE_TIMESTAMP','0')):
+          out.write("{}\t{}\t{}\n".format(userId, record[0], record[1]))
+        else:
+          out.write("{}\t{}\t{}\t{}\n".format(userId, record[0], record[1], record[2]))
 
 def create_NETFLIX_data_timesplit(all_data,
                                   train_min,
