@@ -1,7 +1,11 @@
 # THIS FILE IS COPY-PASTED FROM HERE: https://github.com/yunjey/pytorch-tutorial/tree/master/tutorials/04-utils/tensorboard
 
 # Code referenced from https://gist.github.com/gyglim/1f8dfb1b5c82627ae3efcfbbadb9f514
-import tensorflow as tf
+#import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+#with v1.Graph().as_default():
+
 import numpy as np
 import scipy.misc
 

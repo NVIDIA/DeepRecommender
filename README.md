@@ -58,21 +58,7 @@ $ python ./data_utils/netflix_data_convert.py training_set Netflix
 ### Train the model
 In this example, the model will be trained for 12 epochs. In paper we train for 102.
 ```
-python run.py --gpu_ids 0 \
---path_to_train_data Netflix/NF_TRAIN \
---path_to_eval_data Netflix/NF_VALID \
---hidden_layers 512,512,1024 \
---non_linearity_type selu \
---batch_size 128 \
---logdir model_save \
---drop_prob 0.8 \
---optimizer momentum \
---lr 0.005 \
---weight_decay 0 \
---aug_step 1 \
---noise_prob 0 \
---num_epochs 12 \
---summary_frequency 1000
+python run.py --gpu_ids 0 --path_to_train_data Netflix/NF_TRAIN --path_to_eval_data Netflix/NF_VALID --hidden_layers 512,512,1024 --non_linearity_type selu --batch_size 128 --logdir model_save --drop_prob 0.8 --optimizer momentum --lr 0.005 --weight_decay 0 --aug_step 1 --noise_prob 0 --num_epochs 12 --summary_frequency 1000
 ```
 
 Note that you can run Tensorboard in parallel
@@ -91,6 +77,10 @@ python infer.py \
 --drop_prob 0.8 \
 --predictions_path preds.txt
 ```
+
+python infer.py --path_to_train_data Netflix\NW1_TRAIN --path_to_eval_data Netflix\NW1_TEST --hidden_layers 512,512,1024 --non_linearity_type selu --save_path model_save/model.epoch_0 --drop_prob 0.8 --predictions_path preds.txt
+
+
 
 ### Compute Test RMSE
 ```

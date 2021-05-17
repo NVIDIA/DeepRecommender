@@ -85,9 +85,11 @@ def main(args):
   out_folder = args[2]
   # create necessary folders:
   for output_dir in [(out_folder + f) for f in [
-    "/N3M_TRAIN", "/N3M_VALID", "/N3M_TEST", "/N6M_TRAIN",
-    "/N6M_VALID", "/N6M_TEST", "/N1Y_TRAIN", "/N1Y_VALID",
-    "/N1Y_TEST", "/NF_TRAIN", "/NF_VALID", "/NF_TEST"]]:
+    "/N1W_TRAIN", "/N1W_VALID", "/N1W_TEST",
+    "/N3M_TRAIN", "/N3M_VALID", "/N3M_TEST",
+    "/N6M_TRAIN", "/N6M_VALID", "/N6M_TEST",
+    "/N1Y_TRAIN", "/N1Y_VALID", "/N1Y_TEST",
+    "/NF_TRAIN",  "/NF_VALID",  "/NF_TEST"]]:
     makedirs(output_dir, exist_ok=True)
 
   text_files = [path.join(folder, f)
@@ -117,6 +119,26 @@ def main(args):
 
   print("STATS FOR ALL INPUT DATA")
   print_stats(all_data)
+
+  # Netflix 1 week, for benchmark
+  (n1w_train, n1w_valid, n1w_test) = create_NETFLIX_data_timesplit(all_data,
+                                                                   "2005-09-01",
+                                                                   "2005-09-07",
+                                                                   "2005-09-10",
+                                                                   "2005-09-11")
+  print("Netflix 1w train")
+  print_stats(n1w_train)
+  save_data_to_file(n1w_train, out_folder+"/N1W_TRAIN/n1w.train.txt")
+  print("Netflix 1w valid")
+  print_stats(n1w_valid)
+  save_data_to_file(n1w_valid, out_folder + "/N1W_VALID/n1w.valid.txt")
+  print("Netflix 1w test")
+  print_stats(n1w_test)
+  save_data_to_file(n1w_test, out_folder + "/N1W_TEST/n1w.test.txt")
+
+  print("finished 1 week!")
+
+  quit()
 
   # Netflix full
   (nf_train, nf_valid, nf_test) = create_NETFLIX_data_timesplit(all_data,
